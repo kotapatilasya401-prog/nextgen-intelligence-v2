@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NextGen Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.26.4/babel.min.js"></script>
+<script src="https://unpkg.com/qrcode-generator@1.4.4/qrcode.js"></script>
+<script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
+<style>
+:root{--bg:#eef1f4;--card:#fff;--ink:#162033;--mute:#667186;--line:#dde2ea;--brand:#6a52c4;--bad:#c8372d;--ok:#2a7f62;--warn:#c98a1b;--gray:#8a93a3}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Public Sans",system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5}
+button,input,select{font:inherit}
+.shell{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+nav{background:var(--ink);color:#c9d3e2;padding:24px 14px;display:flex;flex-direction:column;gap:4px}
+nav h1{font-size:20px;margin:0 8px 2px;color:#fff;letter-spacing:.2px}
+nav small{margin:0 8px 18px;color:#8fa0b8}
+nav button{background:none;border:0;color:inherit;text-align:left;padding:10px 12px;border-radius:6px;cursor:pointer}
+nav button:hover{background:#22304a}
+nav button.on{background:var(--brand);color:#fff}
+nav .sp{flex:1}
+main{padding:28px 32px;max-width:1100px;width:100%}
+h2{margin:0 0 4px;font-size:24px}
+.sub{color:var(--mute);margin:0 0 22px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:22px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px}
+.stat b{display:block;font-size:30px;font-variant-numeric:tabular-nums}
+.stat span{color:var(--mute);font-size:13px}
+.stat.red b{color:var(--bad)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:18px;margin-bottom:18px}
+.panel h3{margin:0 0 12px;font-size:16px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.row{display:flex;align-items:center;gap:10px;margin:8px 0}
+.row .l{width:110px;color:var(--mute);font-size:13px}
+.bar{flex:1;height:10px;background:#e8ecf2;border-radius:5px;overflow:hidden;min-width:60px}
+.bar i{display:block;height:100%}
+.lo{background:var(--ok)}.mid{background:var(--warn)}.hi{background:var(--bad)}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--mute);font-weight:600;font-size:13px}
+.b{display:inline-block;padding:2px 9px;border-radius:12px;font-size:12px;font-weight:600;color:#fff}
+.b.flagged{background:var(--bad)}.b.pending{background:var(--warn)}.b.accepted{background:var(--ok)}.b.rejected{background:var(--gray)}
+.btn{background:var(--brand);color:#fff;border:0;padding:9px 16px;border-radius:6px;cursor:pointer;font-weight:600}
+.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn.sm{padding:4px 10px;font-size:13px;margin-right:6px}
+.btn.bad{background:var(--bad)}
+.btn:disabled{opacity:.5;cursor:default}
+label{display:block;font-size:13px;color:var(--mute);margin:12px 0 4px}
+input,select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:6px;background:#fff}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+.err{color:var(--bad);margin:10px 0}
+.note{color:var(--ok);margin:10px 0}
+.result{border-left:5px solid var(--ok);}
+.result.flagged{border-left-color:var(--bad)}
+.login{max-width:380px;margin:12vh auto;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:28px}
+.login h1{margin:0 0 4px}
+.empty{color:var(--mute);padding:14px 0}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--mute);margin-top:8px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+svg text{font-size:11px;fill:var(--ink)}
+.qr{display:inline-block;background:#fff;padding:10px;border:1px solid var(--line);border-radius:8px}
+.qr svg{display:block;width:190px;height:190px}
+.idbig{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.5px}
+video.cam{width:100%;max-width:420px;border-radius:8px;background:#000;display:block;margin-top:12px}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:center}
+.auth-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:#f3f1fd}
+.auth{display:grid;grid-template-columns:1fr 1fr;width:100%;max-width:1040px;border-radius:28px;overflow:hidden;background:#fff;box-shadow:0 20px 60px rgba(80,60,160,.15)}
+.auth-l{background:linear-gradient(135deg,#6d59c9,#9887e5);color:#fff;padding:56px 48px;display:flex;flex-direction:column;justify-content:center}
+.auth-l .cap{font-size:54px;line-height:1;margin-bottom:18px}
+.auth-l h1{font-size:36px;margin:0 0 16px;line-height:1.15}
+.auth-l p{font-size:17px;line-height:1.6;margin:0 0 14px;opacity:.95}
+.auth-r{padding:48px 44px}
+.auth-r h2{font-size:30px;margin:0 0 4px}
+.auth-r label{color:var(--ink);font-weight:600;font-size:14px}
+.auth-r input{padding:13px 14px;border-radius:10px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0 6px}
+.tabs button{border:0;border-radius:10px;padding:14px;font-weight:700;cursor:pointer;background:#efecfb;color:var(--brand)}
+.tabs button.on{background:var(--brand);color:#fff}
+.link{background:none;border:0;color:var(--brand);cursor:pointer;padding:0;display:block;margin:14px auto 0;text-align:center}
+.wide{width:100%;padding:14px;margin-top:20px;border-radius:10px}
+@media(max-width:820px){.auth{grid-template-columns:1fr}.auth-l{padding:32px}.auth-r{padding:28px}}
+@media(max-width:760px){.shell{grid-template-columns:1fr}nav{flex-direction:row;flex-wrap:wrap;padding:12px}nav small,nav .sp{display:none}main{padding:18px}.two{grid-template-columns:1fr}}
+textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:6px;background:#fff;font:inherit;min-height:80px}
+.b.approved{background:var(--ok)}
+.qrpage{display:grid;grid-template-columns:270px 1fr;gap:18px;align-items:start}
+.qrleft{text-align:center}
+.qrleft .qr{margin:6px auto 12px}
+.ftabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.ftabs button{border:1px solid var(--line);background:#fff;border-radius:20px;padding:6px 14px;cursor:pointer;color:var(--ink)}
+.ftabs button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+@media(max-width:820px){.qrpage{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useCallback, useRef } = React;
+
+// ===== Edit these two lists to match your real colleges and programmes =====
+const COLLEGES = ["ABC University", "XYZ College", "PQR Institute", "LMN Engineering College", "RST Institute of Technology"];
+const PROGRAMMES = ["B.Tech Computer Science", "B.Tech Electronics", "B.Tech Mechanical", "B.Tech Civil", "MBA", "MCA", "M.Tech"];
+
+// ==LOGIC-START==
+// Everything is saved in this browser (localStorage). There is no server.
+const KEY = "nextgen_intelligence_db_v1";
+const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+const CODE_RE = /NGI-\d{4}-\d{3,}/i;
+
+function loadDB() {
+  try { const d = JSON.parse(localStorage.getItem(KEY)); if (d && d.users) return d; } catch (e) {}
+  return { users: [], students: [], audit: [], seq: 0, aseq: 0 };
+}
+let DB = loadDB();
+function saveDB() { try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch (e) {} }
+function log(who, action, details, entityId) {
+  DB.aseq = (DB.aseq || 0) + 1;
+  DB.audit.unshift({ id: DB.aseq, who: who || "-", when: new Date().toISOString(), action, entity_id: entityId == null ? null : entityId, details: details || "" });
+  DB.audit = DB.audit.slice(0, 500);
+  saveDB();
+}
+
+async function sha(text) {
+  if (!(window.crypto && crypto.subtle)) return "plain:" + text;
+  const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2, "0")).join("");
+}
+
+async function registerUser({ name, email, password, role }, caller) {
+  email = (email || "").trim().toLowerCase(); name = (name || "").trim();
+  if (name.length < 2) throw new Error("Enter the full name.");
+  if (!EMAIL_RE.test(email)) throw new Error("Enter a valid email address.");
+  if ((password || "").length < 8) throw new Error("Password must be at least 8 characters.");
+  if (DB.users.some(u => u.email === email)) throw new Error("This email is already registered.");
+  if (role === "admin" && DB.users.some(u => u.role === "admin") && !(caller && caller.role === "officer"))
+    throw new Error("Only a signed-in officer can create another admin account.");
+  const salt = Math.random().toString(36).slice(2) + Date.now().toString(36);
+  DB.users.push({ id: "u" + Date.now(), name, email, salt, hash: await sha(salt + password), role });
+  saveDB();
+  log(caller ? caller.email : email, "ACCOUNT_CREATED", "role=" + role + "; email=" + email);
+}
+
+async function loginUser(email, password) {
+  email = (email || "").trim().toLowerCase();
+  const u = DB.users.find(x => x.email === email);
+  if (!u || (await sha(u.salt + (password || ""))) !== u.hash) {
+    log(email, "LOGIN_FAILED", "");
+    throw new Error("Wrong email or password.");
+  }
+  log(u.email, "LOGIN", "");
+  return { role: u.role, name: u.name, email: u.email };
+}
+
+const norm = v => (v || "").trim().toLowerCase();
+const phoneOk = p => /^[6-9]\d{9}$/.test(p || "");
+const apaarOk = a => /^\d{12}$/.test(a || "");
+const formatOk = s => apaarOk(s.apaar_id) && phoneOk(s.phone) && EMAIL_RE.test(norm(s.email));
+
+function sim(a, b) {
+  a = norm(a); b = norm(b);
+  const m = a.length, n = b.length;
+  if (!m || !n) return 0;
+  let prev = Array.from({ length: n + 1 }, (_, j) => j);
+  for (let i = 1; i <= m; i++) {
+    const cur = [i];
+    for (let j = 1; j <= n; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    prev = cur;
+  }
+  return 1 - prev[n] / Math.max(m, n);
+}
+
+// Risk score: higher = more likely a duplicate or a wrong entry. 0.5 and above = high risk.
+function scoreStudent(s, others) {
+  let risk = 0; const reasons = [];
+  const sameId = others.filter(o => s.apaar_id && norm(o.apaar_id) === norm(s.apaar_id)).length;
+  const samePh = others.filter(o => s.phone && o.phone === s.phone).length;
+  const sameEm = others.filter(o => s.email && norm(o.email) === norm(s.email)).length;
+  const maxSim = Math.max(0, ...others.filter(o => o.college === s.college).map(o => sim(o.name, s.name)));
+  if (sameId) { risk += 0.5; reasons.push("APAAR ID already used by " + sameId + " record(s)"); }
+  if (samePh) { risk += 0.25; reasons.push("Phone number shared with " + samePh + " record(s)"); }
+  if (sameEm) { risk += 0.2; reasons.push("Email shared with " + sameEm + " record(s)"); }
+  if (maxSim > 0.9) { risk += 0.3; reasons.push("Name " + Math.floor(maxSim * 100) + "% similar to another student at the same college"); }
+  if (!apaarOk(s.apaar_id)) { risk += 0.25; reasons.push("APAAR ID must be exactly 12 digits"); }
+  if (!phoneOk(s.phone)) { risk += 0.25; reasons.push("Phone number format looks invalid"); }
+  if (!EMAIL_RE.test(norm(s.email))) { risk += 0.25; reasons.push("Email format looks invalid"); }
+  return { risk: Math.round(Math.min(risk, 1) * 100) / 100, reasons };
+}
+
+function addStudent(f, by) {
+  let phone = (f.phone || "").replace(/\D/g, "");
+  if (phone.length === 12 && phone.startsWith("91")) phone = phone.slice(2);
+  const data = {
+    name: (f.name || "").trim(), apaar_id: (f.apaar_id || "").trim(), phone,
+    email: norm(f.email), college: f.college, programme: f.programme,
+    seat_type: f.seat_type, extra_reason: (f.extra_reason || "").trim(),
+  };
+  if (!data.name || !data.apaar_id || !data.phone || !data.email) throw new Error("Fill in all the required fields.");
+  if (data.seat_type === "Supernumerary" && !data.extra_reason) throw new Error("Give the reason for the additional seat approval.");
+  const { risk, reasons } = scoreStudent(data, DB.students);
+  const id = ++DB.seq;
+  const code = "NGI-" + new Date().getFullYear() + "-" + String(id).padStart(3, "0");
+  const row = { id, student_code: code, ...data, risk_score: risk, reason: reasons.join("; "), status: "pending", created_at: new Date().toISOString() };
+  DB.students.push(row); saveDB();
+  log(by, "ADD_STUDENT", "code=" + code, id);
+  return row;
+}
+
+function setStatus(id, status, by) {
+  const s = DB.students.find(x => x.id === id);
+  if (!s || !["approved", "rejected"].includes(status)) throw new Error("Invalid request.");
+  const old = s.status; s.status = status; saveDB();
+  log(by, "STATUS_CHANGE", old + " -> " + status, id);
+}
+
+function verifyStudent(code, method, place, by) {
+  const s = DB.students.find(x => x.student_code === code);
+  if (!s) { log(by, "VERIFY_NOT_FOUND", "code=" + code); throw new Error("Student ID not found."); }
+  log(by, "VERIFY_SCAN", "method=" + method + "; location=" + place, s.id);
+  return { student: s, audit_log: DB.audit.filter(a => a.entity_id === s.id) };
+}
+
+function buildGraph(students) {
+  const edges = [], parent = {};
+  const find = x => (parent[x] === x ? x : (parent[x] = find(parent[x])));
+  students.forEach(s => { parent[s.id] = s.id; });
+  ["phone", "email", "apaar_id"].forEach(field => {
+    const groups = {};
+    students.forEach(s => { const v = norm(s[field]); if (v) (groups[v] = groups[v] || []).push(s.id); });
+    Object.values(groups).forEach(ids => {
+      for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) {
+        edges.push({ source: ids[i], target: ids[j], reason: "same " + field });
+        parent[find(ids[i])] = find(ids[j]);
+      }
+    });
+  });
+  const cl = {};
+  students.forEach(s => { const r = find(s.id); (cl[r] = cl[r] || []).push(s.id); });
+  return { edges, clusters: Object.values(cl).filter(c => c.length > 1) };
+}
+// ==LOGIC-END==
+
+const riskClass = r => (r >= 0.5 ? "hi" : r >= 0.25 ? "mid" : "lo");
+const RiskBar = ({ r }) => (
+  <div className="row" style={{ margin: 0 }}>
+    <div className="bar"><i className={riskClass(r)} style={{ width: Math.max(r * 100, 2) + "%" }} /></div>
+    <span style={{ width: 34, fontVariantNumeric: "tabular-nums" }}>{r.toFixed(2)}</span>
+  </div>
+);
+const Badge = ({ s }) => <span className={"b " + s}>{s}</span>;
+const High = ({ r }) => (r >= 0.5 ? <span className="b flagged">High risk</span> : null);
+
+function Login({ onLogin }) {
+  const [tab, setTab] = useState("officer");
+  const [signup, setSignup] = useState(false);
+  const [f, setF] = useState({ name: "", email: "", password: "" });
+  const [err, setErr] = useState("");
+  const [note, setNote] = useState("");
+  const [busy, setBusy] = useState(false);
+  const admin = tab === "admin";
+  const set = k => e => setF({ ...f, [k]: e.target.value });
+  function pick(t) { setTab(t); setSignup(false); setErr(""); setNote(""); }
+  async function submit(e) {
+    e.preventDefault(); setErr(""); setNote(""); setBusy(true);
+    try {
+      if (signup) {
+        await registerUser({ ...f, role: tab }, null);
+        setSignup(false); setF({ name: "", email: f.email, password: "" }); setNote("Account created. Please log in.");
+      } else {
+        const u = await loginUser(f.email, f.password);
+        if (u.role !== tab) {
+          setErr("This is " + (u.role === "admin" ? "an admin" : "an officer") + " account. Use the " + (u.role === "admin" ? "Admin Portal" : "Officer Login") + " tab.");
+        } else onLogin(u);
+      }
+    } catch (x) { setErr(x.message); }
+    finally { setBusy(false); }
+  }
+  return (
+    <div className="auth-page">
+      <div className="auth">
+        <div className="auth-l">
+          <div className="cap">🎓</div>
+          <h1>NextGen Intelligence</h1>
+          <p>Smart Student Admission Verification System.</p>
+          <p>One platform to manage student records, identify duplicate applications and verify every student with a QR code.</p>
+        </div>
+        <form className="auth-r" onSubmit={submit}>
+          <h2>{signup ? "Create Account" : "Welcome Back!"}</h2>
+          <p className="sub" style={{ marginBottom: 0 }}>
+            {signup ? (admin ? "Set up the admin account." : "Create your officer account.") : (admin ? "Admin login to continue." : "Officer login to continue.")}
+          </p>
+          <div className="tabs">
+            <button type="button" className={!admin ? "on" : ""} onClick={() => pick("officer")}>Officer Login</button>
+            <button type="button" className={admin ? "on" : ""} onClick={() => pick("admin")}>Admin Portal</button>
+          </div>
+          {signup && <><label>Full name</label><input value={f.name} onChange={set("name")} placeholder="Enter full name" autoComplete="name" /></>}
+          <label>Email</label>
+          <input value={f.email} onChange={set("email")} placeholder="Enter email" autoComplete="username" />
+          <label>Password</label>
+          <input type="password" value={f.password} onChange={set("password")} placeholder={signup ? "At least 8 characters" : "Enter password"} autoComplete={signup ? "new-password" : "current-password"} />
+          {err && <div className="err">{err}</div>}
+          {note && <div className="note">{note}</div>}
+          <button className="btn wide" type="submit" disabled={busy}>{signup ? "Create Account" : "Login"}</button>
+          <button className="link" type="button" onClick={() => { setSignup(!signup); setErr(""); setNote(""); }}>
+            {signup ? "Already have an account? Log in" : (admin ? "First time? Set up the admin account" : "New officer? Create an account")}
+          </button>
+          <p className="sub" style={{ fontSize: 12, textAlign: "center", margin: "16px 0 0" }}>Records are saved in this browser only.</p>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function Dashboard({ students }) {
+  const total = students.length;
+  const flagged = students.filter(s => s.risk_score >= 0.5).length;
+  const fmt = students.filter(formatOk).length;
+  const approved = students.filter(s => s.status === "approved").length;
+  const recent = students.slice(0, 5);
+  return (
+    <div>
+      <h2>Dashboard</h2><p className="sub">Student Verification System</p>
+      <div className="grid">
+        <div className="stat"><b>{total}</b><span>Total Students</span></div>
+        <div className="stat red"><b>{flagged}</b><span>Flagged / Duplicate</span></div>
+        <div className="stat"><b>{fmt}</b><span>Format Verified</span></div>
+        <div className="stat"><b>{approved}</b><span>Approved Students</span></div>
+      </div>
+      <div className="panel tw"><h3>Recent Registrations</h3>
+        {recent.length === 0 ? <div className="empty">No students registered yet.</div> :
+          <table><thead><tr><th>Student ID</th><th>Name</th><th>College</th><th>Programme</th><th>Risk</th><th>Status</th></tr></thead>
+            <tbody>{recent.map(s => <tr key={s.id}><td>{s.student_code}</td><td>{s.name}</td><td>{s.college}</td><td>{s.programme}</td>
+              <td style={{ width: 140 }}><RiskBar r={s.risk_score} /></td><td><Badge s={s.status} /></td></tr>)}</tbody></table>}
+      </div>
+    </div>
+  );
+}
+
+function Decide({ s, auth, refresh }) {
+  function go(st) { setStatus(s.id, st, auth.email); refresh(); }
+  return (
+    <td style={{ whiteSpace: "nowrap" }}>
+      <button className="btn sm" disabled={s.status === "approved"} onClick={() => go("approved")}>Approve</button>
+      <button className="btn sm bad" disabled={s.status === "rejected"} onClick={() => go("rejected")}>Reject</button>
+    </td>
+  );
+}
+
+function Records({ students, auth, refresh, go }) {
+  const [flt, setFlt] = useState("all");
+  const officer = auth.role === "officer";
+  const tabs = [["all", "All Students"], ["pending", "Pending"], ["approved", "Approved"], ["rejected", "Rejected"]];
+  const rows = students.filter(s => flt === "all" || s.status === flt);
+  return (
+    <div>
+      <div className="head"><div><h2>Student Records</h2>
+        <p className="sub">{officer ? "Approve or reject each student after reviewing the risk score." : "Read-only view. Only officers can approve or reject students."}</p></div>
+        {officer && <button className="btn" onClick={() => go("register")}>+ Add Student</button>}
+      </div>
+      <div className="ftabs">{tabs.map(([k, l]) => <button key={k} className={flt === k ? "on" : ""} onClick={() => setFlt(k)}>{l}</button>)}</div>
+      <div className="panel tw">
+        {rows.length === 0 ? <div className="empty">{students.length ? "No students match this filter." : "No students yet."}</div> :
+          <table><thead><tr><th>Student ID</th><th>Name</th><th>APAAR ID</th><th>Phone</th><th>College</th><th>Programme</th><th>Seat Type</th><th>Risk</th><th>Status</th>{officer && <th>Action</th>}</tr></thead>
+            <tbody>{rows.map(s => (
+              <tr key={s.id}><td>{s.student_code}</td><td>{s.name}</td><td>{s.apaar_id}</td><td>{s.phone}</td><td>{s.college}</td><td>{s.programme}</td><td>{s.seat_type}</td>
+                <td style={{ width: 130 }}><RiskBar r={s.risk_score} /></td><td><Badge s={s.status} /> <High r={s.risk_score} /></td>
+                {officer && <Decide s={s} auth={auth} refresh={refresh} />}</tr>))}</tbody></table>}
+      </div>
+    </div>
+  );
+}
+
+function Flagged({ students, auth, refresh }) {
+  const officer = auth.role === "officer";
+  const rows = students.filter(s => s.risk_score >= 0.5).sort((a, b) => b.risk_score - a.risk_score);
+  return (
+    <div>
+      <h2>Flagged Reviews</h2><p className="sub">Records with a risk score of 0.50 or more, such as possible duplicates. {officer ? "Review each one and approve or reject it." : "Officers decide on these records."}</p>
+      <div className="panel tw">
+        {rows.length === 0 ? <div className="empty">No flagged records.</div> :
+          <table><thead><tr><th>Student</th><th>Risk</th><th>Why it was flagged</th><th>Status</th>{officer && <th>Action</th>}</tr></thead>
+            <tbody>{rows.map(s => (
+              <tr key={s.id}><td>{s.name}<br /><small style={{ color: "var(--mute)" }}>{s.student_code} · {s.apaar_id}</small></td>
+                <td style={{ width: 150 }}><RiskBar r={s.risk_score} /></td><td>{s.reason}</td><td><Badge s={s.status} /></td>
+                {officer && <Decide s={s} auth={auth} refresh={refresh} />}</tr>))}</tbody></table>}
+      </div>
+    </div>
+  );
+}
+
+function QR({ text }) {
+  let svg = "";
+  try { const q = qrcode(0, "M"); q.addData(text); q.make(); svg = q.createSvgTag(6, 4); } catch (e) {}
+  return svg
+    ? <div className="qr" role="img" aria-label={"QR code for " + text} dangerouslySetInnerHTML={{ __html: svg }} />
+    : <div className="empty">QR library could not load. Student ID: {text}</div>;
+}
+
+function QRPage({ id, auth, refresh, onNew, go }) {
+  const s = DB.students.find(x => x.id === id);
+  const [, force] = useState(0);
+  if (!s) return null;
+  function decide(st) { setStatus(s.id, st, auth.email); refresh(); force(n => n + 1); }
+  const rows = [["Name", s.name], ["APAAR ID", s.apaar_id], ["Phone", s.phone], ["Email", s.email], ["College", s.college], ["Programme", s.programme], ["Seat Type", s.seat_type]];
+  return (
+    <div>
+      <h2>Registration Successful</h2>
+      <p className="sub">Student registered successfully. Check the risk score, then approve or reject.</p>
+      <div className="qrpage">
+        <div className="panel qrleft">
+          <h3>Student QR Code</h3>
+          <QR text={s.student_code} />
+          <p style={{ marginBottom: 4 }}>Unique Student ID</p>
+          <p style={{ margin: "0 0 10px" }}><span className="idbig">{s.student_code}</span></p>
+          <p className="sub" style={{ fontSize: 13, marginBottom: 12 }}>The QR holds only this ID. No personal details are inside it.</p>
+          <button type="button" className="btn ghost" onClick={() => go(s.student_code)}>Open in Verify</button>
+        </div>
+        <div>
+          <div className="panel"><h3>Student Details</h3>
+            <table><tbody>{rows.map(([k, v]) => <tr key={k}><th style={{ width: 120 }}>{k}</th><td>{v}</td></tr>)}</tbody></table>
+            {s.extra_reason && <p style={{ margin: "10px 0 0" }}><b>Additional seat reason:</b> {s.extra_reason}</p>}
+          </div>
+          <div className={"panel result " + (s.risk_score >= 0.5 ? "flagged" : "")}>
+            <h3>Risk Score <High r={s.risk_score} /></h3>
+            <RiskBar r={s.risk_score} />
+            <p style={{ marginBottom: 0 }}>{s.reason || "No duplicate or anomaly signals found."}</p>
+          </div>
+          <div className="panel"><h3>Action</h3>
+            <p className="sub" style={{ marginBottom: 10 }}>Current status: <Badge s={s.status} /></p>
+            <div className="acts" style={{ marginTop: 0 }}>
+              <button type="button" className="btn" disabled={s.status === "approved"} onClick={() => decide("approved")}>Approve</button>
+              <button type="button" className="btn bad" disabled={s.status === "rejected"} onClick={() => decide("rejected")}>Reject</button>
+              <button type="button" className="btn ghost" onClick={onNew}>Register another student</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Register({ auth, refresh, go }) {
+  const empty = { name: "", apaar_id: "", phone: "", email: "", college: COLLEGES[0], programme: PROGRAMMES[0], seat_type: "Regular", extra_reason: "" };
+  const [f, setF] = useState(empty);
+  const [resId, setResId] = useState(null);
+  const [err, setErr] = useState("");
+  const set = k => e => setF({ ...f, [k]: e.target.value });
+  function submit(e) {
+    e.preventDefault(); setErr("");
+    try { const r = addStudent(f, auth.email); setResId(r.id); setF(empty); refresh(); }
+    catch (x) { setErr(x.message); }
+  }
+  if (resId) return <QRPage id={resId} auth={auth} refresh={refresh} go={go} onNew={() => setResId(null)} />;
+  return (
+    <div style={{ maxWidth: 620 }}>
+      <h2>Register Student</h2><p className="sub">Each record is screened against existing students when you submit it.</p>
+      <form className="panel" onSubmit={submit}>
+        <label style={{ marginTop: 0 }}>Student Name</label><input value={f.name} onChange={set("name")} />
+        <label>APAAR ID (12 digits)</label><input value={f.apaar_id} onChange={set("apaar_id")} inputMode="numeric" maxLength={12} />
+        <label>Phone Number (10 digits)</label><input value={f.phone} onChange={set("phone")} inputMode="numeric" />
+        <label>Email Address</label><input value={f.email} onChange={set("email")} />
+        <label>College</label><select value={f.college} onChange={set("college")}>{COLLEGES.map(c => <option key={c}>{c}</option>)}</select>
+        <label>Programme</label><select value={f.programme} onChange={set("programme")}>{PROGRAMMES.map(c => <option key={c}>{c}</option>)}</select>
+        <label>Seat Type</label><select value={f.seat_type} onChange={set("seat_type")}><option>Regular</option><option>Supernumerary</option></select>
+        {f.seat_type === "Supernumerary" && <><label>Reason for Additional Seat Approval</label><textarea value={f.extra_reason} onChange={set("extra_reason")} /></>}
+        {err && <div className="err">{err}</div>}
+        <p className="acts"><button className="btn" type="submit">Submit Registration</button>
+          <button className="btn ghost" type="button" onClick={() => { setF(empty); setErr(""); }}>Clear Form</button></p>
+      </form>
+    </div>
+  );
+}
+
+function Aicte({ students }) {
+  const rows = students.filter(s => s.seat_type === "Supernumerary");
+  return (
+    <div>
+      <h2>AICTE Requests</h2><p className="sub">Additional seat approval requests. These are demo records and are not sent to AICTE.</p>
+      <div className="panel tw">
+        {rows.length === 0 ? <div className="empty">No additional seat requests yet.</div> :
+          <table><thead><tr><th>Student ID</th><th>Name</th><th>College</th><th>Programme</th><th>Reason</th><th>Status</th></tr></thead>
+            <tbody>{rows.map(s => <tr key={s.id}><td>{s.student_code}</td><td>{s.name}</td><td>{s.college}</td><td>{s.programme}</td><td>{s.extra_reason}</td><td><Badge s={s.status} /></td></tr>)}</tbody></table>}
+      </div>
+    </div>
+  );
+}
+
+const EDGE = { phone: "#c98a1b", email: "#6a52c4", apaar_id: "#c8372d" };
+const NODE = { flagged: "#c8372d", pending: "#c98a1b", approved: "#2a7f62", rejected: "#8a93a3" };
+
+function GraphView({ students }) {
+  const g = buildGraph(students);
+  const n = students.length, cx = 320, cy = 230, R = 175;
+  const pos = {};
+  students.forEach((s, i) => { const a = (2 * Math.PI * i) / n - Math.PI / 2; pos[s.id] = [cx + R * Math.cos(a), cy + R * Math.sin(a)]; });
+  const name = id => (students.find(x => x.id === id) || {}).name || id;
+  return (
+    <div>
+      <h2>Relationships</h2><p className="sub">Students linked by a shared phone number, email, or APAAR ID. Linked groups are the ones to investigate.</p>
+      {n === 0 ? <div className="panel"><div className="empty">No students yet.</div></div> :
+      <div className="two" style={{ gridTemplateColumns: "1.5fr 1fr" }}>
+        <div className="panel">
+          <svg viewBox="0 0 640 460" width="100%" role="img" aria-label="Student relationship graph">
+            {g.edges.map((e, i) => <line key={i} x1={pos[e.source][0]} y1={pos[e.source][1]} x2={pos[e.target][0]} y2={pos[e.target][1]}
+              stroke={EDGE[e.reason.replace("same ", "")] || "#999"} strokeWidth="2.5" opacity=".85"><title>{e.reason}</title></line>)}
+            {students.map(s => (
+              <g key={s.id}><circle cx={pos[s.id][0]} cy={pos[s.id][1]} r="9" fill={NODE[s.risk_score >= 0.5 ? "flagged" : s.status] || "#999"}><title>{s.name} ({s.status}{s.risk_score >= 0.5 ? ", high risk" : ""})</title></circle>
+                <text x={pos[s.id][0]} y={pos[s.id][1] + (pos[s.id][1] < cy ? -14 : 22)} textAnchor="middle">{String(s.name).split(" ")[0]}</text></g>))}
+          </svg>
+          <div className="legend">
+            <span><i style={{ background: EDGE.phone }} />Same phone</span><span><i style={{ background: EDGE.email }} />Same email</span><span><i style={{ background: EDGE.apaar_id }} />Same APAAR ID</span>
+            <span><i style={{ background: NODE.flagged }} />High risk</span><span><i style={{ background: NODE.pending }} />Pending</span><span><i style={{ background: NODE.approved }} />Approved</span><span><i style={{ background: NODE.rejected }} />Rejected</span>
+          </div>
+        </div>
+        <div className="panel"><h3>Suspicious clusters</h3>
+          {g.clusters.length === 0 ? <div className="empty">No linked students found.</div> :
+            g.clusters.map((c, i) => (
+              <div key={i} style={{ marginBottom: 12 }}><b>Group {i + 1}</b> ({c.length} students)
+                <div style={{ color: "var(--mute)" }}>{c.map(name).join(", ")}</div></div>))}
+        </div>
+      </div>}
+    </div>
+  );
+}
+
+const PLACES = ["Admission counter", "Main gate", "Admin office", "Exam cell"];
+const ACT = {
+  LOGIN: "Signed in", LOGIN_FAILED: "Failed sign-in", ADD_STUDENT: "Student registered", ACCOUNT_CREATED: "Account created",
+  STATUS_CHANGE: "Status changed", VERIFY_SCAN: "Record verified", VERIFY_NOT_FOUND: "Verify: ID not found"
+};
+function how(r) {
+  const d = r.details || "";
+  const m = /method=(\w+)/.exec(d), l = /location=([^;]+)/.exec(d);
+  if (!m) return d;
+  return (m[1] === "qr" ? "QR scan" : "Typed ID") + (l ? " at " + l[1].trim() : "");
+}
+
+function AuditTable({ rows }) {
+  if (!rows.length) return <div className="empty">No activity recorded yet.</div>;
+  return (
+    <table><thead><tr><th>When</th><th>Who</th><th>What</th><th>Details</th></tr></thead>
+      <tbody>{rows.map(r => (
+        <tr key={r.id}><td style={{ whiteSpace: "nowrap" }}>{r.when ? new Date(r.when).toLocaleString() : ""}</td>
+          <td>{r.who}</td><td>{ACT[r.action] || r.action}</td><td>{how(r)}</td></tr>))}</tbody></table>
+  );
+}
+
+function decodeFile(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement("canvas"); c.width = img.width; c.height = img.height;
+      const x = c.getContext("2d"); x.drawImage(img, 0, 0);
+      const d = x.getImageData(0, 0, c.width, c.height);
+      const r = window.jsQR && jsQR(d.data, d.width, d.height);
+      URL.revokeObjectURL(img.src);
+      r && r.data ? resolve(r.data) : reject(new Error("No QR code found in this image."));
+    };
+    img.onerror = () => reject(new Error("Could not read this image."));
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+function Scanner({ onCode }) {
+  const video = useRef(null);
+  const cb = useRef(onCode); cb.current = onCode;
+  const [msg, setMsg] = useState("Starting camera…");
+  useEffect(() => {
+    let stream, raf, stopped = false;
+    const canvas = document.createElement("canvas");
+    (async () => {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        const v = video.current; v.srcObject = stream; await v.play();
+        setMsg("Point the camera at the student's QR code.");
+        const tick = () => {
+          if (stopped) return;
+          if (v.readyState === v.HAVE_ENOUGH_DATA) {
+            canvas.width = v.videoWidth; canvas.height = v.videoHeight;
+            const ctx = canvas.getContext("2d", { willReadFrequently: true });
+            ctx.drawImage(v, 0, 0);
+            const d = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const r = window.jsQR && jsQR(d.data, d.width, d.height);
+            if (r && r.data) { cb.current(r.data); return; }
+          }
+          raf = requestAnimationFrame(tick);
+        };
+        tick();
+      } catch (e) { setMsg("Camera not available. Type the ID or upload a QR image instead."); }
+    })();
+    return () => { stopped = true; cancelAnimationFrame(raf); stream && stream.getTracks().forEach(t => t.stop()); };
+  }, []);
+  return <div><video ref={video} className="cam" playsInline muted /><p className="sub" style={{ marginTop: 8 }}>{msg}</p></div>;
+}
+
+function Verify({ auth, preset }) {
+  const [code, setCode] = useState(preset || "");
+  const [place, setPlace] = useState(PLACES[0]);
+  const [scanning, setScanning] = useState(false);
+  const [data, setData] = useState(null);
+  const [err, setErr] = useState("");
+  useEffect(() => { if (preset) setCode(preset); }, [preset]);
+  function lookup(raw, method) {
+    setErr(""); setData(null);
+    const m = CODE_RE.exec(raw || "");
+    if (!m) { setErr("This is not a NextGen student QR code."); return; }
+    const id = m[0].toUpperCase();
+    setCode(id);
+    try { setData(verifyStudent(id, method, place, auth.email)); }
+    catch (x) { setErr(x.message); }
+  }
+  async function onFile(e) {
+    const f = e.target.files[0]; e.target.value = "";
+    if (!f) return;
+    try { lookup(await decodeFile(f), "qr"); } catch (x) { setErr(x.message); setData(null); }
+  }
+  return (
+    <div>
+      <h2>Verify Student</h2><p className="sub">Scan the student's QR code. Every scan is recorded in the audit log.</p>
+      <div className="panel" style={{ maxWidth: 560 }}>
+        <label style={{ marginTop: 0 }}>Where are you verifying?</label>
+        <select value={place} onChange={e => setPlace(e.target.value)}>{PLACES.map(p => <option key={p}>{p}</option>)}</select>
+        <div className="acts">
+          <button type="button" className="btn" onClick={() => { setErr(""); setScanning(s => !s); }}>{scanning ? "Stop camera" : "Scan QR with camera"}</button>
+          <label className="btn ghost" style={{ display: "inline-block", margin: 0, color: "var(--ink)", fontSize: 15, cursor: "pointer" }}>
+            Upload QR image<input type="file" accept="image/*" hidden onChange={onFile} />
+          </label>
+        </div>
+        {scanning && <Scanner onCode={t => { setScanning(false); lookup(t, "qr"); }} />}
+        <form onSubmit={e => { e.preventDefault(); lookup(code, "manual"); }}>
+          <label>Or type the Student ID</label>
+          <div style={{ display: "flex", gap: 8 }}>
+            <input value={code} onChange={e => setCode(e.target.value)} placeholder="NGI-2026-001" />
+            <button className="btn" type="submit">Verify</button>
+          </div>
+        </form>
+        {err && <div className="err">{err}</div>}
+      </div>
+      {data && (
+        <>
+          <div className="panel result" style={{ maxWidth: 560 }}>
+            <h3>Student record found</h3>
+            <table><tbody>
+              <tr><th>Student ID</th><td><span className="idbig">{data.student.student_code}</span></td></tr>
+              <tr><th>Name</th><td>{data.student.name}</td></tr>
+              <tr><th>College</th><td>{data.student.college}</td></tr>
+              <tr><th>Programme</th><td>{data.student.programme}</td></tr>
+              <tr><th>Status</th><td><Badge s={data.student.status} /></td></tr>
+            </tbody></table>
+          </div>
+          <div className="panel tw"><h3>Audit log for this student</h3><AuditTable rows={data.audit_log} /></div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function AuditLog() {
+  const [, force] = useState(0);
+  return (
+    <div>
+      <h2>Audit Log</h2><p className="sub">Who did what and when. Latest 100 entries.</p>
+      <p><button className="btn ghost" onClick={() => force(n => n + 1)}>Refresh</button></p>
+      <div className="panel tw"><AuditTable rows={DB.audit.slice(0, 100)} /></div>
+    </div>
+  );
+}
+
+function Accounts({ auth }) {
+  const [f, setF] = useState({ name: "", email: "", password: "", role: "officer" });
+  const [err, setErr] = useState("");
+  const [note, setNote] = useState("");
+  const set = k => e => setF({ ...f, [k]: e.target.value });
+  async function submit(e) {
+    e.preventDefault(); setErr(""); setNote("");
+    try {
+      await registerUser(f, auth);
+      setNote("Account created for " + f.email.trim().toLowerCase() + " (" + f.role + ").");
+      setF({ name: "", email: "", password: "", role: f.role });
+    } catch (x) { setErr(x.message); }
+  }
+  return (
+    <div style={{ maxWidth: 520 }}>
+      <h2>Create Account</h2><p className="sub">Add an officer or an admin. Admins can only monitor.</p>
+      <form className="panel" onSubmit={submit}>
+        <label style={{ marginTop: 0 }}>Full name</label><input value={f.name} onChange={set("name")} />
+        <label>Email</label><input value={f.email} onChange={set("email")} />
+        <label>Password (8+ characters)</label><input type="password" value={f.password} onChange={set("password")} />
+        <label>Account type</label>
+        <select value={f.role} onChange={set("role")}><option value="officer">Officer</option><option value="admin">Admin</option></select>
+        {err && <div className="err">{err}</div>}
+        {note && <div className="note">{note}</div>}
+        <p><button className="btn" type="submit">Create Account</button></p>
+      </form>
+    </div>
+  );
+}
+
+const SKEY = "nextgen_intelligence_session_v1";
+function App() {
+  const [auth, setAuthState] = useState(() => { try { return JSON.parse(sessionStorage.getItem(SKEY)); } catch (e) { return null; } });
+  const [tab, setTab] = useState("dashboard");
+  const [preset, setPreset] = useState("");
+  const [, bump] = useState(0);
+  const refresh = useCallback(() => bump(n => n + 1), []);
+  function setAuth(a) {
+    try { a ? sessionStorage.setItem(SKEY, JSON.stringify(a)) : sessionStorage.removeItem(SKEY); } catch (e) {}
+    setAuthState(a);
+  }
+  if (!auth) return <Login onLogin={a => { setTab("dashboard"); setAuth(a); }} />;
+  const officer = auth.role === "officer";
+  const students = [...DB.students].reverse();
+  const items = officer
+    ? [["dashboard", "Dashboard"], ["records", "Student Records"], ["register", "Register Student"], ["verify", "Verify Student"], ["flagged", "Flagged Reviews"], ["graph", "Relationships"], ["aicte", "AICTE Requests"], ["accounts", "Create Account"]]
+    : [["dashboard", "Dashboard"], ["records", "Student Records"], ["flagged", "Flagged Reviews"], ["graph", "Relationships"], ["aicte", "AICTE Requests"], ["audit", "Audit Log"]];
+  const go = t => setTab(t);
+  return (
+    <div className="shell">
+      <nav>
+        <h1>NextGen</h1><small>{auth.name} ({auth.role})</small>
+        {items.map(([k, l]) => <button key={k} className={tab === k ? "on" : ""} onClick={() => setTab(k)}>{l}</button>)}
+        <div className="sp" />
+        <button onClick={() => setAuth(null)}>Logout</button>
+      </nav>
+      <main>
+        {tab === "dashboard" && <Dashboard students={students} />}
+        {tab === "records" && <Records students={students} auth={auth} refresh={refresh} go={go} />}
+        {officer && tab === "register" && <Register auth={auth} refresh={refresh} go={c => { setPreset(c); setTab("verify"); }} />}
+        {officer && tab === "verify" && <Verify auth={auth} preset={preset} />}
+        {tab === "flagged" && <Flagged students={students} auth={auth} refresh={refresh} />}
+        {tab === "graph" && <GraphView students={students} />}
+        {tab === "aicte" && <Aicte students={students} />}
+        {officer && tab === "accounts" && <Accounts auth={auth} />}
+        {!officer && tab === "audit" && <AuditLog />}
+      </main>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
